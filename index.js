@@ -1,5 +1,10 @@
+// Inseri no campo do usuario: 'or 1=1; drop table users;--, metodo que foi mostrado nas aulas anteriores -- Henrique A.Florentino 5ºDSM
+
+
 // CTF - SQL Injection no Login
 // Tecnologias: Node.js, Express, SQLite
+
+
 
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
@@ -48,3 +53,5 @@ app.post('/login', (req, res) => {
 app.listen(3000, () => {
     console.log('Servidor rodando em http://localhost:3000');
 });
+
+
