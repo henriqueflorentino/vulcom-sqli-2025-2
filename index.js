@@ -33,16 +33,26 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     
-    // CONSULTA SQL VULNERÁVEL 🚨
-    const query = 'SELECT * FROM users WHERE username = ? AND password = ?'
+    // // CONSULTA SQL VULNERÁVEL 🚨
+    // const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
 
-    const query2 = 'SELECT * FROM flags'
+    /* 
+    Consulta SQL segura, Usando Parametros 
+    ? marca o lugar onde os parametros serão vinculados (binding)
+    No caso do SQlite, o caractere ? é usado para marcar o lugar 
+    dos parametros. Outros bancos de dados podem utilizar convenções diferentes,
+    como $0, $1, etc 
+    */
+    const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
 
-    // db.all(query, [], (err, rows) => {
-        // Os valores dos params sao passados em db.all no segundo argumento, com um vetor
-        //Tais valores sao sanitirizados antes de serem incorporados à consulta
-        
+    const query2 = `SELECT * FROM flags`;
     
+    //db.all(query, [], (err, rows) => {
+    /*
+        Os valores dos parametros são passados em db.all no segundo argumento,
+        como um vetor. Tais valores são sanitizados antes de serem incorporados
+        na consulta.
+    */
     db.all(query, [username, password], (err, rows) => {
         if (err) {
             return res.send('Erro no servidor');
@@ -50,6 +60,13 @@ app.post('/login', (req, res) => {
         if (rows.length > 0) {
             console.log('CONSULTA: ', query);
             console.log('RESULTADO:', rows);
+            db.get(query2, [], (err, row) => {
+                if (err) return res.send('ERRO: ${err}')
+                    let ret = 'Bem vindo, ${username}! <br> '
+                    ret += 'Flag: ${row.flag}';
+                    return res.send(ret);
+            });
+
             return res.send(`Bem-vindo, ${username}! <br> Flag: VULCOM{SQLi_Exploit_Success}`);
         } else {
             return res.send('Login falhou!');
@@ -59,6 +76,3 @@ app.post('/login', (req, res) => {
 
 app.listen(3000, () => {
     console.log('Servidor rodando em http://localhost:3000');
-});
-
-
