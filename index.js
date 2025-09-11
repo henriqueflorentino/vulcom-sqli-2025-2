@@ -34,9 +34,16 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
     
     // CONSULTA SQL VULNERÁVEL 🚨
-    const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+    const query = 'SELECT * FROM users WHERE username = ? AND password = ?'
+
+    const query2 = 'SELECT * FROM flags'
+
+    // db.all(query, [], (err, rows) => {
+        // Os valores dos params sao passados em db.all no segundo argumento, com um vetor
+        //Tais valores sao sanitirizados antes de serem incorporados à consulta
+        
     
-    db.all(query, [], (err, rows) => {
+    db.all(query, [username, password], (err, rows) => {
         if (err) {
             return res.send('Erro no servidor');
         }
